@@ -8,7 +8,7 @@ public class Participant {
     private String birthPlace;
     private String gender;
     private String email;
-    private int numPhone;
+    private String phoneNum;
     private Address personal;
 
     private WorkPlace workPlace;
@@ -75,12 +75,12 @@ public class Participant {
         this.email = email;
     }
 
-    public int getNumPhone() {
-        return numPhone;
+    public String getNumPhone() {
+        return phoneNum;
     }
 
-    public void setNumPhone(int numPhone) {
-        this.numPhone = numPhone;
+    public void setNumPhone(String numPhone) {
+        this.phoneNum = numPhone;
     }
 
     public Address getPersonal() {
