@@ -2,43 +2,20 @@ package com.amalia.excelapp;
 
 public class Participant {
     private String name;
-    private long nip;
-    private long nik;
-    private String email;
-    private int numPhone;
-
+    private long nipId;
+    private long nikId;
     private String birthDate;
     private String birthPlace;
     private String gender;
+    private String email;
+    private int numPhone;
+    private Address personal;
+
+    private WorkPlace workPlace;
+
+    private Education education;
 
     private Position position;
-    private String lastEducation;
-    private String lastMajor;
-    private String workPlace;
-
-    private Address work;
-    private Address personal;
-    private int postalCode;
-
-    public Participant(){}
-
-    public Participant(String name, long nip, long nik, String email, int numPhone, String birthDate, String birthPlace, String gender, Position position, String lastEducation, String lastMajor, String workPlace, Address work, Address personal, int postalCode) {
-        this.name = name;
-        this.nip = nip;
-        this.nik = nik;
-        this.email = email;
-        this.numPhone = numPhone;
-        this.birthDate = birthDate;
-        this.birthPlace = birthPlace;
-        this.gender = gender;
-        this.position = position;
-        this.lastEducation = lastEducation;
-        this.lastMajor = lastMajor;
-        this.workPlace = workPlace;
-        this.work = work;
-        this.personal = personal;
-        this.postalCode = postalCode;
-    }
 
     public String getName() {
         return name;
@@ -48,36 +25,20 @@ public class Participant {
         this.name = name;
     }
 
-    public long getNip() {
-        return nip;
+    public long getNipId() {
+        return nipId;
     }
 
-    public void setNip(long nip) {
-        this.nip = nip;
+    public void setNipId(long nipId) {
+        this.nipId = nipId;
     }
 
-    public long getNik() {
-        return nik;
+    public long getNikId() {
+        return nikId;
     }
 
-    public void setNik(long nik) {
-        this.nik = nik;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public int getNumPhone() {
-        return numPhone;
-    }
-
-    public void setNumPhone(int numPhone) {
-        this.numPhone = numPhone;
+    public void setNikId(long nikId) {
+        this.nikId = nikId;
     }
 
     public String getBirthDate() {
@@ -104,44 +65,20 @@ public class Participant {
         this.gender = gender;
     }
 
-    public Position getPosition() {
-        return position;
+    public String getEmail() {
+        return email;
     }
 
-    public void setPosition(Position position) {
-        this.position = position;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String getLastEducation() {
-        return lastEducation;
+    public int getNumPhone() {
+        return numPhone;
     }
 
-    public void setLastEducation(String lastEducation) {
-        this.lastEducation = lastEducation;
-    }
-
-    public String getLastMajor() {
-        return lastMajor;
-    }
-
-    public void setLastMajor(String lastMajor) {
-        this.lastMajor = lastMajor;
-    }
-
-    public String getWorkPlace() {
-        return workPlace;
-    }
-
-    public void setWorkPlace(String workPlace) {
-        this.workPlace = workPlace;
-    }
-
-    public Address getWork() {
-        return work;
-    }
-
-    public void setWork(Address work) {
-        this.work = work;
+    public void setNumPhone(int numPhone) {
+        this.numPhone = numPhone;
     }
 
     public Address getPersonal() {
@@ -152,11 +89,27 @@ public class Participant {
         this.personal = personal;
     }
 
-    public int getPostalCode() {
-        return postalCode;
+    public WorkPlace getWorkPlace() {
+        return workPlace;
     }
 
-    public void setPostalCode(int postalCode) {
-        this.postalCode = postalCode;
+    public void setWorkPlace(WorkPlace workPlace) {
+        this.workPlace = workPlace;
+    }
+
+    public Education getEducation() {
+        return education;
+    }
+
+    public void setEducation(Education education) {
+        this.education = education;
+    }
+
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
     }
 }
