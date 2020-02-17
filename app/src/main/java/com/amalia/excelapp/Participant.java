@@ -2,8 +2,8 @@ package com.amalia.excelapp;
 
 public class Participant {
     private String name;
-    private long nipId;
-    private long nikId;
+    private String nipId;
+    private String nikId;
     private String birthDate;
     private String birthPlace;
     private String gender;
@@ -17,6 +17,8 @@ public class Participant {
 
     private Position position;
 
+
+
     public String getName() {
         return name;
     }
@@ -25,19 +27,19 @@ public class Participant {
         this.name = name;
     }
 
-    public long getNipId() {
+    public String getNipId() {
         return nipId;
     }
 
-    public void setNipId(long nipId) {
+    public void setNipId(String nipId) {
         this.nipId = nipId;
     }
 
-    public long getNikId() {
+    public String getNikId() {
         return nikId;
     }
 
-    public void setNikId(long nikId) {
+    public void setNikId(String nikId) {
         this.nikId = nikId;
     }
 
