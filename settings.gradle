@@ -1,2 +1,2 @@
-include ':app', ':poi-ooxml-schemas-4.1.2.jar', ':poi-4.1.2', ':poi-ooxml-4.1.2', ':poi-ooxml-schemas-4.1.2'
+include ':app', ':poi-ooxml-schemas-4.1.2.jar', ':commons-codec-1.5', ':commons-logging-1.1', ':dom4j-1.6.1', ':log4j-1.2.13', ':junit-3.8.1', ':poi-3.9-20121203', ':poi-examples-3.9-20121203', ':poi-excelant-3.9-20121203', ':poi-ooxml-3.9-20121203', ':poi-ooxml-schemas-3.9-20121203', ':poi-scratchpad-3.9-20121203', ':stax-api-1.0.1', ':xmlbeans-2.3.0'
 rootProject.name='ExcelApp'
