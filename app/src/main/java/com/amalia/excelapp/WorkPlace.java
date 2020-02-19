@@ -1,9 +1,18 @@
 package com.amalia.excelapp;
 
 public class WorkPlace {
+    private String name;
     private String streetName;
     private Address work;
     private int postalCode;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getStreetName() {
         return streetName;
