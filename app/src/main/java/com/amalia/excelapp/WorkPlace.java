@@ -3,7 +3,7 @@ package com.amalia.excelapp;
 public class WorkPlace {
     private String name;
     private String streetName;
-    private Address work;
+    private Address address;
     private int postalCode;
 
     public String getName() {
@@ -22,12 +22,12 @@ public class WorkPlace {
         this.streetName = streetName;
     }
 
-    public Address getWork() {
-        return work;
+    public Address getAddress() {
+        return address;
     }
 
-    public void setWork(Address work) {
-        this.work = work;
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public int getPostalCode() {
