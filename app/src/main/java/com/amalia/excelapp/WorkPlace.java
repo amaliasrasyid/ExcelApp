@@ -6,6 +6,13 @@ public class WorkPlace {
     private Address address;
     private int postalCode;
 
+    public WorkPlace(String name, String streetName, Address address, int postalCode) {
+        this.name = name;
+        this.streetName = streetName;
+        this.address = address;
+        this.postalCode = postalCode;
+    }
+
     public String getName() {
         return name;
     }
