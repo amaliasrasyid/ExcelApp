@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //**HEADER**//
+        //DO JUST ONCE WHEN FILE .XLSX CREATED
         //create style font for header
         XSSFFont font = workbook.createFont();
         font.setFontName("Arial");
@@ -88,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
         style.setAlignment(CellStyle.ALIGN_CENTER);
         style.setFont(font);
 
-        //TODO: STUCK MERGE in horizontal not vertical
 
         //row 0
         idxHeaderCell = 0;
@@ -122,16 +123,40 @@ public class MainActivity extends AppCompatActivity {
             idxHeaderCell++;
         }
 
-
+        //**INSERTING VALUE **//
         //iterate data
-//        int rowNum = 1;
-//        for (Participant participant : participants) {
-//            Row row = participantsSheet.createRow(rowNum++);
-//            row.createCell(0).setCellValue(rowNum);
-//            row.createCell(1).setCellValue(participant.getName());
-//            row.createCell(2).setCellValue(participant.get());
-//
-//        }
+        int rowNum = 2;
+        int numTable = 1;
+        for (Participant participant : participants) {
+            Row row = participantsSheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(numTable++);
+            row.createCell(1).setCellValue(participant.getName());
+            row.createCell(2).setCellValue(participant.getNikId());
+            row.createCell(3).setCellValue(participant.getBirthDate());
+            row.createCell(4).setCellValue(participant.getBirthPlace());
+            row.createCell(5).setCellValue(participant.getGender());
+            row.createCell(6).setCellValue(participant.getNipId());
+
+            row.createCell(7).setCellValue(participant.getPosition().getName());
+            row.createCell(8).setCellValue(participant.getPosition().getEchelon());
+
+            row.createCell(9).setCellValue(participant.getEducation().getEduLevel());
+            row.createCell(10).setCellValue(participant.getEducation().getMajor());
+
+            row.createCell(11).setCellValue(participant.getWorkPlace().getName());
+            row.createCell(12).setCellValue(participant.getWorkPlace().getAddress().getStreet());
+            row.createCell(13).setCellValue(participant.getWorkPlace().getAddress().getKec());
+            row.createCell(14).setCellValue(participant.getWorkPlace().getAddress().getKab());
+
+            row.createCell(15).setCellValue(participant.getPersonalAddress().getStreet());
+            row.createCell(16).setCellValue(participant.getPersonalAddress().getKec());
+            row.createCell(17).setCellValue(participant.getPersonalAddress().getKab());
+            row.createCell(18).setCellValue(participant.getPersonalAddress().getProv());
+
+            row.createCell(19).setCellValue(participant.getEmail());
+            row.createCell(20).setCellValue(participant.getNumPhone());
+            row.createCell(21).setCellValue(participant.getWorkPlace().getPostalCode());
+        }
 
         //creating file excel
         File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "daftar peserta diklat.xlsx");//Save into dir Documents
@@ -159,10 +184,17 @@ public class MainActivity extends AppCompatActivity {
         mParticipant.setGender("Perempuan");
         mParticipant.setBirthPlace("Seberang Pantai");
         mParticipant.setBirthDate("24 Desember 1975");
+        mParticipant.setPersonalAddress(new Address("jln. bunga setangkai no. 58 kel pasar lubuk jambi","Kuantan Mudik","kuantan singingi",""));
         mParticipant.setEmail("irwansyahmasni70@gmail.com");
         mParticipant.setNumPhone("0853 6570 8289");
         mParticipant.setPosition(new Position("Kepala Puskesmas", "III/C"));
         mParticipant.setEducation(new Education("S1", "Kesehatan Masyarakat"));
+        mParticipant.setWorkPlace(new WorkPlace(
+                                                "UPTD Kesehatan Puskesmas Lubuk Jambi",
+                                                new Address("JlN. lingkar banjar padang _ kasang Banjar Padang","Kuantan Mudik","Kuantan Singingi","Riau"),
+                                                29564)
+                                );
+
 
         //insert into arraylist participants
         participants.add(mParticipant);
