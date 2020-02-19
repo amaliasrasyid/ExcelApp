@@ -3,6 +3,7 @@ package com.amalia.excelapp;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -14,31 +15,34 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<Participant> participants = new ArrayList<>();
     private final String TAG = "main act";
-    String[] headerColumns = {"No","NAMA","NIK","TANGGAL LAHIR",
-            "JK","NIP","JABATAN","GOL","TINGKAT PENDIDIKAN TERAKHIR",
-            "FAKULTAS/JURUSAN PEND TERAKHIR","TEMPAT KERJA","EMAIL",
-            "NO.HP","KODE POS","PARAF"};
+    String[] headerTopCol = {"No", "NAMA", "NIK", "TANGGAL \n LAHIR", "TEMPAT \n LAHIR", "JK", "NIP", "JABATAN", "GOL", "TINGKAT\nPEND\nTERAKHIR",
+            "FAKULTAS/JURUSAN\nPEND\nTERAKHIR", "TEMPAT\nKERJA", "ALAMAT TEMPAT KERJA", "",
+            "", "ALAMAT RUMAH", "", "", "", "EMAIL", "NO.\nHP", "KODE\nPOS", "PARAF"};
+
+    String[] headerBottomCol = {"ALAMAT", "KEC", "KAB", "ALAMAT", "KEC", "KAB", "PROV"};
+    XSSFRow headerRow;
+    Cell cell;
+    int idxHeaderCell;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +59,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "clicked");
+                snackBar(view, "Clicked");
                 createExcelFile();
 
             }
         });
     }
 
-    private void importFromExcel(){
+    private void importFromExcel() {
 
     }
 
@@ -69,31 +74,53 @@ public class MainActivity extends AppCompatActivity {
 
         //creating workbook and a sheet
 
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        HSSFSheet participantsSheet = workbook.createSheet("peserta diklat");
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet participantsSheet = workbook.createSheet("peserta diklat");
 
 
-        //create column and row
-        HSSFRow headerRow = participantsSheet.createRow(0);
-
+        //**HEADER**//
         //create style font for header
-        HSSFFont font = workbook.createFont();
+        XSSFFont font = workbook.createFont();
         font.setFontName("Arial");
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
 
-        HSSFCellStyle style = workbook.createCellStyle();
+        XSSFCellStyle style = workbook.createCellStyle();
         style.setAlignment(CellStyle.ALIGN_CENTER);
         style.setFont(font);
 
-        // declare a cell object reference
-        Cell cell = null;
+        //TODO: STUCK MERGE in horizontal not vertical
 
-        for(int i=0;i<headerColumns.length;i++){
+        //row 0
+        idxHeaderCell = 0;
+        headerRow = participantsSheet.createRow(0);
+        //create cell header, set value & style
+        for (int i = 0; i < headerTopCol.length; i++) {
             cell = headerRow.createCell(i);
-            cell.setCellValue(headerColumns[i]);
-//            cell.setCellStyle(style);
-        }
+            cell.setCellValue(headerTopCol[i]);
+            //merging cell (header)
+            if (i == 12) {
+                participantsSheet.addMergedRegion(new CellRangeAddress(0, 0, i, 14));
+                i = 14;
+            } else if (i == 15) {
+                participantsSheet.addMergedRegion(new CellRangeAddress(0, 0, i, 18));
+                i = 18;
+            } else {
+                participantsSheet.addMergedRegion(new CellRangeAddress(0, 1, i,i));
 
+            }
+            cell.setCellStyle(style);
+//            idxHeaderCell++;
+        }
+        idxHeaderCell = 0;
+        //row 1
+        idxHeaderCell = 12;
+        headerRow = participantsSheet.createRow(1);
+        for (int i = 0; i < headerBottomCol.length; i++) {
+            cell = headerRow.createCell(idxHeaderCell);
+            cell.setCellValue(headerBottomCol[i]);
+            cell.setCellStyle(style);
+            idxHeaderCell++;
+        }
 
 
         //iterate data
@@ -107,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
         //creating file excel
-        File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "daftar peserta diklat.xls");//Save into dir Documents
+        File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "daftar peserta diklat.xlsx");//Save into dir Documents
         FileOutputStream outputStream = null;
         try {
             outputStream = new FileOutputStream(file);
@@ -134,8 +161,8 @@ public class MainActivity extends AppCompatActivity {
         mParticipant.setBirthDate("24 Desember 1975");
         mParticipant.setEmail("irwansyahmasni70@gmail.com");
         mParticipant.setNumPhone("0853 6570 8289");
-        mParticipant.setPosition(new Position("Kepala Puskesmas","III/C"));
-        mParticipant.setEducation(new Education("S1","Kesehatan Masyarakat"));
+        mParticipant.setPosition(new Position("Kepala Puskesmas", "III/C"));
+        mParticipant.setEducation(new Education("S1", "Kesehatan Masyarakat"));
 
         //insert into arraylist participants
         participants.add(mParticipant);
@@ -163,5 +190,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void snackBar(View view, String message) {
+        Snackbar.make(view, message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 }
