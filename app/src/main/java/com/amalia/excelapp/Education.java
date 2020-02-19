@@ -13,7 +13,7 @@ public class Education {
 
     public Education(String eduLevel, String major) {
         this.eduLevel = eduLevel;
-        this.faculty = faculty;
+        this.major = major;
     }
 
     public Education(){}
