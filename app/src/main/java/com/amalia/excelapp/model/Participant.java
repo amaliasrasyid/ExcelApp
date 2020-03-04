@@ -1,4 +1,4 @@
-package com.amalia.excelapp;
+package com.amalia.excelapp.model;
 
 public class Participant {
     private String name;
