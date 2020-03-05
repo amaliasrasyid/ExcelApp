@@ -1,14 +1,22 @@
 package com.amalia.excelapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import com.amalia.excelapp.model.Address;
+import com.amalia.excelapp.model.Education;
+import com.amalia.excelapp.model.Participant;
+import com.amalia.excelapp.model.Position;
+import com.amalia.excelapp.model.WorkPlace;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -16,10 +24,14 @@ import android.view.MenuItem;
 
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -27,10 +39,14 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -44,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
     XSSFRow headerRow;
     Cell cell;
     int idxHeaderCell;
+    private ArrayList<Participant> resultReadParticipantList = new ArrayList<>();
+    private String pathFile;
+    private static final int PICKFILE_RESULT_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +74,22 @@ public class MainActivity extends AppCompatActivity {
         //load data
         loadData();
 
+        //read excel file
+        try{
+            readExcelFile();
+        }catch (IOException e){
+            Log.d(TAG,e.toString());
+        }
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "clicked");
                 snackBar(view, "Clicked");
+//                setPathFile();
                 createExcelFile();
+
 
             }
         });
@@ -87,7 +115,8 @@ public class MainActivity extends AppCompatActivity {
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
 
         XSSFCellStyle style = workbook.createCellStyle();
-        style.setAlignment(CellStyle.ALIGN_CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setAlignment(HorizontalAlignment.CENTER);
         style.setFont(font);
 
 
@@ -158,8 +187,22 @@ public class MainActivity extends AppCompatActivity {
             row.createCell(21).setCellValue(participant.getWorkPlace().getPostalCode());
         }
 
-        //creating file excel
-        File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "daftar peserta diklat.xlsx");//Save into dir Documents
+        //creating folder
+        File path = new File(Environment.getExternalStorageDirectory().getPath()+"/Excel App");
+        try{
+            if(path.mkdirs()){
+                Log.d(TAG,"directory created");
+            }else{
+                Log.d(TAG,"directory not created");
+            }
+        }catch (Exception e){
+            Log.d(TAG,e.getMessage().toString());
+        }
+
+
+
+        // Get public external storage folder ( /storage/emulated/0 ).
+        File file = new File(path, "daftar peserta diklat.xlsx");//Save into dir Documents
         FileOutputStream outputStream = null;
         try {
             outputStream = new FileOutputStream(file);
@@ -170,6 +213,50 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, " file not created");
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+
+    }
+
+    private void readExcelFile() throws IOException{
+        //todo: UNTUK SEMENTARA MENGGUNAKAN FIX PATH FILE
+        //create an object of File class to open xlsx file
+        File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),"ex read file.xlsx");
+
+        //create FileInputStream to read excel file
+        FileInputStream  inputStream = new FileInputStream(file);
+        XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+
+        //**READ PROCESS**//
+        Sheet inputSheet = workbook.getSheetAt(0);// 0 = first sheet
+        //find number of rows in file excel
+        int rowCount = inputSheet.getLastRowNum() - inputSheet.getFirstRowNum();
+
+        //iterating each row to read all rows of file excel
+        for(int idxRow = 0; idxRow < rowCount+1;idxRow++){
+            Row row = inputSheet.getRow(idxRow);
+
+            //loop every cell in a row to storing in an object class Participant
+            Participant participant = new Participant();
+            participant.setName(getCellValue(row.getCell(1)));
+            participant.setNikId(getCellValue(row.getCell(2)));
+            participant.setBirthDate(getCellValue(row.getCell(3)));
+            participant.setBirthPlace(getCellValue(row.getCell(4)));
+            participant.setGender(getCellValue(row.getCell(5)));
+            participant.setNipId(getCellValue(row.getCell(6)));
+            participant.setPosition(new Position(getCellValue(row.getCell(7)), getCellValue(row.getCell(8))));
+            participant.setEducation(new Education(getCellValue(row.getCell(9)), getCellValue(row.getCell(10))));
+            participant.setWorkPlace(new WorkPlace(
+                    getCellValue(row.getCell(11)),
+                    new Address(getCellValue(row.getCell(12)),getCellValue(row.getCell(13)),getCellValue(row.getCell(14)),getCellValue(row.getCell(18))),
+                    Integer.parseInt(getCellValue(row.getCell(21))))
+            );
+            participant.setPersonalAddress(new Address(getCellValue(row.getCell(15)),getCellValue(row.getCell(16)),getCellValue(row.getCell(17)),""));
+                participant.setEmail(getCellValue(row.getCell(19)));
+                participant.setNumPhone(getCellValue(row.getCell(20)));
+
+            //store in arraylist
+            resultReadParticipantList.add(participant);
         }
 
 
@@ -200,6 +287,45 @@ public class MainActivity extends AppCompatActivity {
         participants.add(mParticipant);
 
 
+    }
+    private void setPathFile(){
+//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//        intent.setType("file/*");
+//        startActivityForResult(intent,PICKFILE_RESULT_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            String folderPath = data.getData().getPath();
+
+            //set path
+            pathFile = folderPath;
+        }
+    }
+
+    private String getCellValue(Cell cell){
+        switch (cell.getCellType()){
+            case XSSFCell.CELL_TYPE_STRING:
+                return cell.getStringCellValue();
+            case XSSFCell.CELL_TYPE_NUMERIC:
+                //check if it was date type or not
+                if(DateUtil.isCellDateFormatted(cell)){
+                    return customDateFormat(cell.getDateCellValue());
+                }else{
+                    return String.valueOf((int)cell.getNumericCellValue());
+                }
+            default:
+                return "unknown data type cell";
+        }
+    }
+
+    private String customDateFormat(Date dateCellValue) {
+        //create date pattern format
+        SimpleDateFormat customPattern = new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault());
+
+        return customPattern.format(dateCellValue);
     }
 
     @Override
