@@ -1,6 +1,8 @@
 package com.amalia.excelapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.amalia.excelapp.model.Address;
@@ -10,12 +12,14 @@ import com.amalia.excelapp.model.Position;
 import com.amalia.excelapp.model.WorkPlace;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -47,6 +51,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -61,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     Cell cell;
     int idxHeaderCell;
     private ArrayList<Participant> resultReadParticipantList = new ArrayList<>();
-    private String pathFile;
+    private String pathImportedFile;
     private static final int PICKFILE_RESULT_CODE = 1;
 
     @Override
@@ -72,14 +77,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         //load data
-        loadData();
 
-        //read excel file
-        try{
-            readExcelFile();
-        }catch (IOException e){
-            Log.d(TAG,e.toString());
-        }
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -94,11 +92,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-    private void importFromExcel() {
-
-    }
-
     private void createExcelFile() {
 
         //creating workbook and a sheet
@@ -221,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
     private void readExcelFile() throws IOException{
         //todo: UNTUK SEMENTARA MENGGUNAKAN FIX PATH FILE
         //create an object of File class to open xlsx file
-        File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),"ex read file.xlsx");
+        File file = new File(pathImportedFile);
 
         //create FileInputStream to read excel file
         FileInputStream  inputStream = new FileInputStream(file);
@@ -257,53 +250,13 @@ public class MainActivity extends AppCompatActivity {
 
             //store in arraylist
             resultReadParticipantList.add(participant);
+            Log.d(TAG,participant.getName());
         }
 
 
     }
 
 
-    private void loadData() {
-        Participant mParticipant = new Participant();
-        mParticipant.setName("Masni, SST");
-        mParticipant.setNikId("1409016412750001");
-        mParticipant.setNipId("19751224 200604 2 009");
-        mParticipant.setGender("Perempuan");
-        mParticipant.setBirthPlace("Seberang Pantai");
-        mParticipant.setBirthDate("24 Desember 1975");
-        mParticipant.setPersonalAddress(new Address("jln. bunga setangkai no. 58 kel pasar lubuk jambi","Kuantan Mudik","kuantan singingi",""));
-        mParticipant.setEmail("irwansyahmasni70@gmail.com");
-        mParticipant.setNumPhone("0853 6570 8289");
-        mParticipant.setPosition(new Position("Kepala Puskesmas", "III/C"));
-        mParticipant.setEducation(new Education("S1", "Kesehatan Masyarakat"));
-        mParticipant.setWorkPlace(new WorkPlace(
-                                                "UPTD Kesehatan Puskesmas Lubuk Jambi",
-                                                new Address("JlN. lingkar banjar padang _ kasang Banjar Padang","Kuantan Mudik","Kuantan Singingi","Riau"),
-                                                29564)
-                                );
-
-
-        //insert into arraylist participants
-        participants.add(mParticipant);
-
-
-    }
-    private void setPathFile(){
-//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//        intent.setType("file/*");
-//        startActivityForResult(intent,PICKFILE_RESULT_CODE);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            String folderPath = data.getData().getPath();
-
-            //set path
-            pathFile = folderPath;
-        }
-    }
 
     private String getCellValue(Cell cell){
         switch (cell.getCellType()){
@@ -328,6 +281,26 @@ public class MainActivity extends AppCompatActivity {
         return customPattern.format(dateCellValue);
     }
 
+    private void chooseFile() {
+        Intent intent = new Intent(this, FilePickerActivity.class);
+        intent.putExtra(FilePickerActivity.ARG_FILTER, Pattern.compile(".*\\.xlsx$"));
+        intent.putExtra(FilePickerActivity.ARG_CLOSEABLE,true);
+        startActivityForResult(intent,PICKFILE_RESULT_CODE);
+
+//        intent.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");//format .xlsx
+//        startActivityForResult(Intent.createChooser(intent,"Choose File .xlsx"),PICKFILE_RESULT_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            String filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+            pathImportedFile = filePath;
+            Log.d(TAG,"Result path"+filePath);
+
+        }
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -343,12 +316,25 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_importFileExcel) {
+            //get file with picker
+            chooseFile();
+            //read the imported file
+            if(pathImportedFile != null){
+                try {
+                    readExcelFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.d(TAG,e.getCause().toString());
+                }
+            }
+
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+
 
     private void snackBar(View view, String message) {
         Snackbar.make(view, message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
