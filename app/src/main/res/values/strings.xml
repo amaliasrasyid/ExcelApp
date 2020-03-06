@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">ExcelApp</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_importFileExcel">Import File Excel</string>
 </resources>
