@@ -25,6 +25,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -66,18 +70,26 @@ public class MainActivity extends AppCompatActivity {
     Cell cell;
     int idxHeaderCell;
     private ArrayList<Participant> resultReadParticipantList = new ArrayList<>();
+    private Participant mParticipant;
     private String pathImportedFile;
     private static final int PICKFILE_RESULT_CODE = 1;
+    TextView textView;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        textView = findViewById(R.id.textview);
+        progressBar = findViewById(R.id.progressBar);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //load data
 
+
+        //load data
+        Data.loadData();
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -211,10 +223,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void readExcelFile() throws IOException{
+    private void readExcelFile(String filepath) throws IOException{
         //todo: UNTUK SEMENTARA MENGGUNAKAN FIX PATH FILE
         //create an object of File class to open xlsx file
-        File file = new File(pathImportedFile);
+        File file = new File(filepath);
 
         //create FileInputStream to read excel file
         FileInputStream  inputStream = new FileInputStream(file);
@@ -224,8 +236,10 @@ public class MainActivity extends AppCompatActivity {
         Sheet inputSheet = workbook.getSheetAt(0);// 0 = first sheet
         //find number of rows in file excel
         int rowCount = inputSheet.getLastRowNum() - inputSheet.getFirstRowNum();
+        Log.d(TAG,"rowount = "+rowCount);
 
         //iterating each row to read all rows of file excel
+        Log.d(TAG,"iterating cell");
         for(int idxRow = 0; idxRow < rowCount+1;idxRow++){
             Row row = inputSheet.getRow(idxRow);
 
@@ -248,10 +262,13 @@ public class MainActivity extends AppCompatActivity {
                 participant.setEmail(getCellValue(row.getCell(19)));
                 participant.setNumPhone(getCellValue(row.getCell(20)));
 
-            //store in arraylist
-            resultReadParticipantList.add(participant);
+//            //store in arraylist
+//            resultReadParticipantList.add(participant);
+//            mParticipant = partici
+            textView.setText(participant.getName());
             Log.d(TAG,participant.getName());
         }
+        Log.d(TAG,"finish iterating cell");
 
 
     }
@@ -296,9 +313,17 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             String filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
-            pathImportedFile = filePath;
-            Log.d(TAG,"Result path"+filePath);
 
+            Log.d(TAG,"Result path"+filePath);
+            //read the imported file
+            try {
+                progressBar.setVisibility(View.VISIBLE);
+                readExcelFile(filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.d(TAG,e.getCause().toString());
+            }
+            progressBar.setVisibility(View.INVISIBLE);
         }
     }
     @Override
@@ -319,18 +344,7 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_importFileExcel) {
             //get file with picker
             chooseFile();
-            //read the imported file
-            if(pathImportedFile != null){
-                try {
-                    readExcelFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.d(TAG,e.getCause().toString());
-                }
-            }
-
         }
-
         return super.onOptionsItemSelected(item);
     }
 
