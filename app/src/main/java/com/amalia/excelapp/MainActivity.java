@@ -70,22 +70,21 @@ public class MainActivity extends AppCompatActivity {
     Cell cell;
     int idxHeaderCell;
     private ArrayList<Participant> resultReadParticipantList = new ArrayList<>();
+    private ArrayList<String> participantsName = new ArrayList<>();
     private Participant mParticipant;
-    private String pathImportedFile;
     private static final int PICKFILE_RESULT_CODE = 1;
-    TextView textView;
+    ListView listView;
     ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        textView = findViewById(R.id.textview);
-        progressBar = findViewById(R.id.progressBar);
 
+        progressBar = findViewById(R.id.progressBar);
+        listView = findViewById(R.id.listview);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
 
         //load data
@@ -264,8 +263,7 @@ public class MainActivity extends AppCompatActivity {
 
 //            //store in arraylist
 //            resultReadParticipantList.add(participant);
-//            mParticipant = partici
-            textView.setText(participant.getName());
+            participantsName.add(participant.getName());
             Log.d(TAG,participant.getName());
         }
         Log.d(TAG,"finish iterating cell");
@@ -315,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
             String filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
 
             Log.d(TAG,"Result path"+filePath);
+            //READ FILE
             //read the imported file
             try {
                 progressBar.setVisibility(View.VISIBLE);
@@ -324,6 +323,12 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG,e.getCause().toString());
             }
             progressBar.setVisibility(View.INVISIBLE);
+
+            //LISTVIEW
+            //adapter list item
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,participantsName);
+            //set adapter to listview
+            listView.setAdapter(adapter);
         }
     }
     @Override
